@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask something...">
+        <button onclick="sendQuery()">Send</button>
+        <div id="history-box"></div>
+    </div>
+
+    <script>
+        function getCurrentDateTime() {
+            // ISO 8601 format
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+        }
+        async function sendQuery() {
+            const log = document.getElementById('user-input').value;
+            const currentDateTime = getCurrentDateTime();
+            const response = await fetch('http://localhost:5000/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ log: log, date: currentDateTime})
+            });
+            const data = await response.json();
+            document.getElementById('chat-box').innerHTML += `<p>User: ${log}</p><p>Bot: ${data.response}</p>`;
+        
+            fetchChatHistory();
+        }
+        async function fetchChatHistory() {
+            const response = await fetch('http://127.0.0.1:5000/api/chat/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json' // Ensure Content-Type is set to application/json
+                }
+            });
+
+
+            const data = await response.json();
+
+            // Check if data.chat is an array
+            if (Array.isArray(data.chat)) {
+                let historyHtml = "<h3>Chat History:</h3>";
+                data.chat.forEach(item => {
+                    historyHtml += `<p>User: ${item.log}</p><p>Bot: ${item.generated}</p><p>Date: ${item.date}</p>`;
+                });
+                document.getElementById('history-box').innerHTML = historyHtml;
+            } else {
+                console.error('Expected an array in data.chat but got:', data);
+            }
+        }
+    </script>
+</body>
+</html>

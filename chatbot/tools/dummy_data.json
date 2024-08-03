@@ -1,0 +1,6 @@
+{
+    "Chats": [
+        {"date": "01/01/23 01:00:00", "generated": "yes","log": "asdfasdf"},
+        {"date": "01/01/24 02:00:00", "generated": "no","log": "asdfasdf"}
+    ]
+}

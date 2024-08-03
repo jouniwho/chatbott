@@ -1,0 +1,117 @@
+---
+openapi: 3.0.3
+servers:
+- url: /api
+components:
+  parameters:
+    chat:
+      description: chat logs
+      in: path
+      name: chat
+      required: true
+      schema:
+        type: number
+  schemas:
+    Chat:
+      properties:
+        log:
+          description: User's chats
+          type: string
+        log_date:
+          description: logs datetime as a string
+          type: string
+      required:
+      - log
+      - date
+      type: object
+info:
+  title: Chatbot
+  version: 0.0.1
+  description: |
+    API documentation for Chatbot.
+  termsOfService: http://nothing/
+  contact:
+    url: http://nothing/
+    email: nothing@nothing.com
+    name: FAKE CONTACT
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+paths:
+  /chat/:
+    get:
+      description: Get the chats
+      responses:
+        '200':
+          description: Successfully retrieved list of past chats
+          content:
+            application/vnd.mason+json:
+              example:
+                '@controls':
+                  chatbot:send-chat:
+                    encoding: json
+                    href: /api/chat/
+                    method: POST
+                    schema:
+                      properties:
+                        log:
+                          description: text
+                          type: string
+                        log_date:
+                          description: log creation datetime as a string
+                          type: string
+                          title: send message
+                    self:
+                      href: /api/chat/
+                chats:
+                - log: asdfasdf
+                  date: '2024-01-01T01:00:00'
+                - log: asdfadsf
+                  date: '2024-01-01T01:00:00'
+        '404':
+          description: Not found
+    post:
+      description: Send chat
+      requestBody:
+        description: JSON document that contains basic data of a chat
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Chat'
+            example:
+              log: asdlfkj
+              log_date: "2024-01-11T13:01:56"
+      responses:
+        '201':
+          description: Successfully sent a chat
+          links:
+            GetChatByChatId:
+              operationId: Access logs
+              parameters:
+                log: 'log id'
+              description: >
+                New user ID can be used to access the chat. GET /api/chat/{log}/
+          content:
+            application/vnd.mason+json:
+              example:
+                "@controls":
+                  self:
+                    href: /api/chat/1/
+                  delete:
+                    method": DELETE
+                    title: delete
+                    href: /api/chat/1/
+        '400':
+          description: Invalid request body
+          content:
+            json:
+              example:
+                message: The browser (or proxy) sent a request that this server could not understand.
+        '415':
+          description: Request body isn't JSON
+          content:
+            json:
+              example:
+                message: The server does not support the media type transmitted in the request.
+        '404':
+          description: Not found
