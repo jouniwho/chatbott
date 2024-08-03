@@ -24,3 +24,7 @@ Windows
 (optional: ```flask fill-db```)
 
 ```flask run```
+
+
+Client:
+client can be opened in a browser
